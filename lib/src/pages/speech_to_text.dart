@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nlp_flutter/src/prividers/nlp_provider.dart';
 import 'package:speech_recognition/speech_recognition.dart';
 
 
@@ -8,12 +9,14 @@ class SpeechToTextPage extends StatefulWidget {
 }
 
 class _SpeechToTextPageState extends State<SpeechToTextPage> {
+
+  final nlpProvider = new NlpProvider();
   
    SpeechRecognition _speechRecognition; //objeto de reconocimiento de voz
     bool _isAvailable = false;
     bool _isListening = false;
 
-    String transcription = 'hola'; //aqui tendremos el resultado de la transcripcion
+    String transcription = 'hola si'; //aqui tendremos el resultado de la transcripcion
   
   @override
     void initState() { 
@@ -49,7 +52,8 @@ class _SpeechToTextPageState extends State<SpeechToTextPage> {
                       padding: const EdgeInsets.all(20.0),
                       child: Text(transcription,
                       style: TextStyle(fontSize: 22),),
-                    )
+                    ),
+                    _procesar(transcription), //aqui llamo al metodo para usar la API
                   ],
                 ),
                 Column(
@@ -124,5 +128,27 @@ class _SpeechToTextPageState extends State<SpeechToTextPage> {
           transcription = "transcripcion cancelada";
         } )
         );
+  }
+
+  Widget _procesar(String val) {
+
+    return FutureBuilder(
+      future: nlpProvider.getRpta(val),
+      builder: (BuildContext context, AsyncSnapshot snapshot){
+
+        if(snapshot.hasData){
+          return Center(
+            child: Text(snapshot.data),
+          );
+        }else{
+          return Container(
+                  height: 400.0,
+                  child: Center(
+                    child: CircularProgressIndicator() //icon de cargando
+                  )
+                ); 
+        }
+      }
+      );
   } 
 }
